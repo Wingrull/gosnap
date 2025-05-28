@@ -14,9 +14,11 @@ jobs:
           - os: windows-latest
             ext: .exe
             binary_name: gosnap-windows-amd64.exe
+            build_cmd: go build -o gosnap-windows-amd64.exe -ldflags="-s -w" -trimpath -buildvcs=false
           - os: ubuntu-latest
             ext: ""
             binary_name: gosnap-linux-amd64
+            build_cmd: go build -o gosnap-linux-amd64 -ldflags="-s -w" -trimpath -buildvcs=false
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -27,11 +29,7 @@ jobs:
           go-version: '1.23'
 
       - name: Build
-        run: |
-          go build -o "${{ matrix.binary_name }}" \
-            -ldflags="-s -w" \
-            -trimpath \
-            -buildvcs=false
+        run: ${{ matrix.build_cmd }}
 
       - uses: softprops/action-gh-release@v1
         with:
