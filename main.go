@@ -59,8 +59,13 @@ func main() {
 		fmt.Println("Please provide a directory path")
 		os.Exit(1)
 	}
-	inputDir := args[0]
-	log.Printf("Input directory: %s", inputDir)
+	inputDir := "."
+	if len(args) > 0 {
+		inputDir = args[0]
+		log.Printf("Input directory: %s (specified)", inputDir)
+	} else {
+		log.Printf("Input directory: %s (default)", inputDir)
+	}
 	log.Printf("Output file: %s", config.output)
 	log.Printf("Exclude patterns: %v", config.exclude)
 	log.Printf("Exclude noise: %v", config.excludeNoise)
