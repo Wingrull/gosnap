@@ -7,8 +7,9 @@
 - **Directory Structure Snapshot**: Displays a tree-like structure of files and folders.
 - **Text File Contents**: Extracts and includes the contents of text files (UTF-8 encoded) in the output.
 - **Binary File Filtering**: Automatically skips binary and non-UTF-8 files.
-- **Exclude Common Artifacts**: Ignores development-related files/folders (e.g., `.git`, `.idea`, `.venv`) by default.
+- **Exclude Common Artifacts**: Ignores development-related files/folders (e.g., `.git`, `.idea`, `.venv`, `lib`, `test`, `log`, `etc`) by default.
 - **Custom Exclusions**: Allows manual exclusion of specific files or folders.
+- **File Extension Filtering**: Includes only files with specified extensions (e.g., `.py`, `.go`).
 - **Flexible Output**: Saves the snapshot to a user-specified file (default: `snap.txt`).
 - **Default Input Directory**: Uses the current directory (`.`) if no input directory is specified.
 
@@ -42,10 +43,26 @@
 Run `gosnap` with the following command-line flags:
 
 - `-e, --exclude <name>`: Manually exclude specific files or folders (can be used multiple times).
-- `-en, --exclude-noise`: Automatically exclude common development artifacts (default: `true`). Set to `false` to include them.
+- `-en, --exclude-noise`: Automatically exclude common development artifacts (e.g., `.git`, `.idea`, `.venv`, `lib`, `test`, `log`, `etc`) (default: `true`). Set to `false` to include them.
+- `-ext, --extension <ext>`: Include only files with specified extensions (e.g., `.py`, `.go`) (can be used multiple times).
 - `-o, --output <file>`: Specify the output file path (default: `snap.txt`).
 
 The input directory is optional; if not provided, the current directory (`.`) is used.
+
+### Default Exclusions
+When `-en/--exclude-noise` is enabled (default: `true`), the following files and folders are automatically excluded:
+- `.git`
+- `.venv`
+- `__pycache__`
+- `node_modules`
+- `.idea`
+- `.DS_Store`
+- `lib`
+- `test`
+- `log`
+- `etc`
+
+To include these artifacts in the snapshot, use `-en=false`.
 
 ### Examples
 
@@ -53,7 +70,7 @@ The input directory is optional; if not provided, the current directory (`.`) is
    ```bash
    ./gosnap
    ```
-   This creates `snap.txt` with the directory structure and contents of text files, excluding artifacts like `.git` and `.idea`.
+   This creates `snap.txt` with the directory structure and contents of text files, excluding artifacts like `.git`, `.idea`, `lib`, `test`, `log`, and `etc`.
 
    **Output in `snap.txt`**:
    ```
@@ -84,23 +101,38 @@ The input directory is optional; if not provided, the current directory (`.`) is
    ...
    ```
 
-2. **Snapshot a specific directory with custom exclusions**:
+2. **Snapshot only Python files in a specific directory**:
    ```bash
-   ./gosnap /path/to/project -e vendor -e test
+   ./gosnap /path/to/project -ext .py
    ```
-   This processes `/path/to/project`, excluding `vendor` and `test` directories, and writes to `snap.txt`.
+   This processes `/path/to/project`, including only `.py` files and excluding `lib`, `test`, `log`, `etc`, and other artifacts.
+
+   **Output in `snap.txt`**:
+   ```
+   Directory Structure:
+   main.py
+   utils.py
+
+   === File Contents ===
+
+   File: main.py
+   <contents of main.py>
+
+   File: utils.py
+   <contents of utils.py>
+   ```
 
 3. **Include development artifacts**:
    ```bash
-   ./gosnap -en=false .
+   ./gosnap -en=false -ext .py .
    ```
-   This includes folders like `.idea` and `.git` in the snapshot.
+   This includes folders like `.idea`, `lib`, `test`, `log`, and `etc`, but only processes `.py` files.
 
-4. **Specify a custom output file**:
+4. **Specify a custom output file and multiple extensions**:
    ```bash
-   ./gosnap -o snapshot.txt .
+   ./gosnap -o snapshot.txt -ext .py -ext .go .
    ```
-   This writes the snapshot to `snapshot.txt` instead of `snap.txt`.
+   This writes the snapshot to `snapshot.txt`, including only `.py` and `.go` files.
 
 ## Output Format
 
@@ -112,18 +144,16 @@ Example:
 ```
 Directory Structure:
 src/
-  main.go
-README.md
+  main.py
+  utils.py
 
 === File Contents ===
 
-File: src/main.go
-package main
-...
+File: src/main.py
+<contents of main.py>
 
-File: README.md
-# My Project
-...
+File: src/utils.py
+<contents of utils.py>
 ```
 
 ## Dependencies
