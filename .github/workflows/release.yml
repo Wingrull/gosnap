@@ -28,6 +28,13 @@ jobs:
         with:
           go-version: '1.24.3'
 
+      - name: Verify Go environment
+        run: |
+          go version
+          go env
+          ls -la
+        shell: bash
+
       - name: Create bin directory
         run: mkdir -p bin
         shell: bash
@@ -37,7 +44,7 @@ jobs:
           if [ "${{ matrix.os }}" == "windows-latest" ]; then
             cmd /c build.bat
           else
-            GOOS=linux go build -o bin/gosnap -a -gcflags=all="-l -B" -ldflags="-w -s" -trimpath -buildvcs=false
+            GOOS=linux go build -o bin/gosnap -a -gcflags=all="-l -B" -ldflags="-w -s" -trimpath -buildvcs=false || { echo "Linux build failed"; exit 1; }
           fi
         shell: bash
 
