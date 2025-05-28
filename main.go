@@ -93,7 +93,7 @@ func main() {
 
 func generateSnapshot(inputDir string, outputFile *os.File, config Config) error {
 	// Список стандартных артефактов для исключения
-	noisePatterns := []string{".git", ".venv", "__pycache__", "node_modules", ".idea", ".DS_Store", "lib", "test"}
+	noisePatterns := []string{".git", ".venv", "__pycache__", "node_modules", ".idea", ".DS_Store", "lib", "test", "etc", "log"}
 
 	// Собираем структуру директорий
 	var structure strings.Builder
