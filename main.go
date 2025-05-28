@@ -44,8 +44,8 @@ func main() {
 	var exclude StringSlice
 	flag.Var(&exclude, "e", "Manually exclude specific files or folders")
 	flag.Var(&exclude, "exclude", "Manually exclude specific files or folders")
-	flag.BoolVar(&config.excludeNoise, "en", false, "Automatically exclude common development artifacts")
-	flag.BoolVar(&config.excludeNoise, "exclude-noise", false, "Automatically exclude common development artifacts")
+	flag.BoolVar(&config.excludeNoise, "en", true, "Automatically exclude common development artifacts")
+	flag.BoolVar(&config.excludeNoise, "exclude-noise", true, "Automatically exclude common development artifacts")
 	flag.StringVar(&config.output, "o", "snap.txt", "Output file path")
 	flag.StringVar(&config.output, "output", "snap.txt", "Output file path")
 	flag.Parse()
