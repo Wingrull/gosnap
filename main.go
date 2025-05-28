@@ -18,9 +18,9 @@ type Config struct {
 	exclude      StringSlice // для флага -e/--exclude
 	excludeNoise bool        // флаг --exclude-noise
 	output       string      // путь к выходному файлу
+	extensions   StringSlice // для флага -ext/--extension
 }
 
-// StringSlice для поддержки множественных значений флага exclude
 type StringSlice []string
 
 func (s *StringSlice) String() string {
@@ -42,23 +42,22 @@ func main() {
 	// Определение флагов
 	var config Config
 	var exclude StringSlice
+	var extensions StringSlice
 	flag.Var(&exclude, "e", "Manually exclude specific files or folders")
 	flag.Var(&exclude, "exclude", "Manually exclude specific files or folders")
-	flag.BoolVar(&config.excludeNoise, "en", true, "Automatically exclude common development artifacts")
-	flag.BoolVar(&config.excludeNoise, "exclude-noise", true, "Automatically exclude common development artifacts")
+	flag.BoolVar(&config.excludeNoise, "en", true, "Automatically exclude common development artifacts (default: true)")
+	flag.BoolVar(&config.excludeNoise, "exclude-noise", true, "Automatically exclude common development artifacts (default: true)")
 	flag.StringVar(&config.output, "o", "snap.txt", "Output file path")
 	flag.StringVar(&config.output, "output", "snap.txt", "Output file path")
+	flag.Var(&extensions, "ext", "Include only files with specified extensions (e.g., .py, .go)")
+	flag.Var(&extensions, "extension", "Include only files with specified extensions (e.g., .py, .go)")
 	flag.Parse()
 
 	config.exclude = exclude
+	config.extensions = extensions
 
-	// Логирование входящих параметров
+	// Установка входной директории
 	args := flag.Args()
-	if len(args) == 0 {
-		log.Println("Error: No directory path provided")
-		fmt.Println("Please provide a directory path")
-		os.Exit(1)
-	}
 	inputDir := "."
 	if len(args) > 0 {
 		inputDir = args[0]
@@ -68,6 +67,7 @@ func main() {
 	}
 	log.Printf("Output file: %s", config.output)
 	log.Printf("Exclude patterns: %v", config.exclude)
+	log.Printf("Include extensions: %v", config.extensions)
 	log.Printf("Exclude noise: %v", config.excludeNoise)
 
 	// Создаем выходной файл
@@ -93,7 +93,7 @@ func main() {
 
 func generateSnapshot(inputDir string, outputFile *os.File, config Config) error {
 	// Список стандартных артефактов для исключения
-	noisePatterns := []string{".git", ".venv", "__pycache__", "node_modules", ".idea", ".DS_Store"}
+	noisePatterns := []string{".git", ".venv", "__pycache__", "node_modules", ".idea", ".DS_Store", "lib", "test"}
 
 	// Собираем структуру директорий
 	var structure strings.Builder
@@ -104,7 +104,7 @@ func generateSnapshot(inputDir string, outputFile *os.File, config Config) error
 
 		// Проверяем исключения
 		relPath, _ := filepath.Rel(inputDir, path)
-		if shouldExclude(relPath, info, config.exclude, config.excludeNoise, noisePatterns) {
+		if shouldExclude(relPath, info, config.exclude, config.excludeNoise, noisePatterns, config.extensions) {
 			if info.IsDir() {
 				return filepath.SkipDir
 			}
@@ -151,7 +151,7 @@ func generateSnapshot(inputDir string, outputFile *os.File, config Config) error
 
 		// Пропускаем директории и исключенные файлы
 		relPath, _ := filepath.Rel(inputDir, path)
-		if info.IsDir() || shouldExclude(relPath, info, config.exclude, config.excludeNoise, noisePatterns) {
+		if info.IsDir() || shouldExclude(relPath, info, config.exclude, config.excludeNoise, noisePatterns, config.extensions) {
 			return nil
 		}
 
@@ -192,7 +192,7 @@ func generateSnapshot(inputDir string, outputFile *os.File, config Config) error
 	return err
 }
 
-func shouldExclude(path string, info os.FileInfo, exclude []string, excludeNoise bool, noisePatterns []string) bool {
+func shouldExclude(path string, info os.FileInfo, exclude []string, excludeNoise bool, noisePatterns []string, extensions StringSlice) bool {
 	// Проверяем явно исключенные файлы/папки
 	for _, excl := range exclude {
 		if strings.Contains(path, excl) || info.Name() == excl {
@@ -209,10 +209,23 @@ func shouldExclude(path string, info os.FileInfo, exclude []string, excludeNoise
 		}
 	}
 
+	// Проверяем расширения файлов, если они указаны
+	if len(extensions) > 0 && !info.IsDir() {
+		hasValidExtension := false
+		for _, ext := range extensions {
+			if strings.HasSuffix(strings.ToLower(info.Name()), strings.ToLower(ext)) {
+				hasValidExtension = true
+				break
+			}
+		}
+		if !hasValidExtension {
+			return true
+		}
+	}
+
 	return false
 }
 
-// isBinaryFile проверяет, является ли файл бинарным или не в UTF-8
 func isBinaryFile(path string) (bool, error) {
 	file, err := os.Open(path)
 	if err != nil {
