@@ -2,9 +2,9 @@
 pushd "%~dp0"
 
 set GOOS=windows
-rem -o "./build"
-set GO_BUILD_CMD=go build -o "./build" -a -gcflags=all="-l -B" -ldflags="-w -s" -trimpath -buildvcs=false
+set GO_BUILD_CMD=go build -o "./bin" -a -gcflags=all="-l -B" -ldflags="-w -s" -trimpath -buildvcs=false
 
+mkdir -p bin
 echo %GOOS% build ...
 echo %GO_BUILD_CMD%
 %GO_BUILD_CMD%

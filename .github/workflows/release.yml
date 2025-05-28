@@ -28,15 +28,25 @@ jobs:
         with:
           go-version: '1.24.3'
 
-      - name: Create build directory
-        run: mkdir -p build
+      - name: Create bin directory
+        run: mkdir -p bin
+        shell: bash
 
       - name: Build binary
         run: |
           if [ "${{ matrix.os }}" == "windows-latest" ]; then
             cmd /c build.bat
           else
-            GOOS=linux go build -o ./build -a -gcflags=all="-l -B" -ldflags="-w -s" -trimpath -buildvcs=false
+            GOOS=linux go build -o bin/gosnap -a -gcflags=all="-l -B" -ldflags="-w -s" -trimpath -buildvcs=false
+          fi
+        shell: bash
+
+      - name: Verify build output
+        run: |
+          ls -la bin/
+          if [ ! -f bin/${{ matrix.artifact_name }} ]; then
+            echo "Error: Build output bin/${{ matrix.artifact_name }} not found"
+            exit 1
           fi
         shell: bash
 
@@ -44,7 +54,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: build/${{ matrix.artifact_name }}
+          file: bin/${{ matrix.artifact_name }}
           asset_name: ${{ matrix.asset_name }}
           tag: ${{ github.ref }}
           overwrite: true

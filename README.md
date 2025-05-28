@@ -41,10 +41,10 @@ Pre-built binaries for Windows and Linux are available in the [Releases](https:/
    ```bash
    build.bat
    ```
-   This creates `build/gosnap.exe` (Windows) and `build/gosnap` (Linux).
+   This creates `bin/gosnap.exe` (Windows) and `bin/gosnap` (Linux).
 4. (Optional) Move the binary to a directory in your `PATH` for global access:
    ```bash
-   mv gosnap /usr/local/bin/
+   mv bin/gosnap /usr/local/bin/
    ```
 
 ## Usage
@@ -144,7 +144,7 @@ To include these artifacts in the snapshot, use `-en=false`.
    This writes the snapshot to `snapshot.txt`, including only `.py` and `.go` files.
 
 ## Releases
-Pre-built binaries for Windows (`gosnap-windows-amd64.exe`) and Linux (`gosnap-linux-amd64`) are available in the [Releases](https://github.com/Wingrull/gosnap/releases) section. These are automatically built using GitHub Actions whenever a new tag (e.g., `v1.0.0`) is pushed. The binaries are generated using `build.bat` for Windows and an equivalent `go build` command for Linux, producing `build/gosnap.exe` and `build/gosnap`, respectively.
+Pre-built binaries for Windows (`gosnap-windows-amd64.exe`) and Linux (`gosnap-linux-amd64`) are available in the [Releases](https://github.com/Wingrull/gosnap/releases) section. These are automatically built using GitHub Actions whenever a new tag (e.g., `v1.0.0`) is pushed. The binaries are generated using `build.bat` for Windows and an equivalent `go build` command for Linux, producing `bin/gosnap.exe` and `bin/gosnap`, respectively.
 
 To create a new release:
 1. Tag the commit:
