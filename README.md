@@ -15,11 +15,15 @@
 
 ## Installation
 
-### Prerequisites
+### Option 1: Download Pre-built Binaries
+Pre-built binaries for Windows and Linux are available in the [Releases](https://github.com/Wingrull/gosnap/releases) section. Download the appropriate binary (`gosnap-windows-amd64.exe` for Windows or `gosnap-linux-amd64` for Linux) and place it in a directory included in your `PATH`.
+
+### Option 2: Build from Source
+#### Prerequisites
 - **Go**: Ensure you have Go 1.24.3 or later installed. Download it from [golang.org](https://golang.org/dl/).
 - **Git**: Required to clone the repository.
 
-### Steps
+#### Steps
 1. Clone the repository:
    ```bash
    git clone https://github.com/Wingrull/gosnap.git
@@ -33,6 +37,11 @@
    ```bash
    go build -o gosnap
    ```
+   Alternatively, use `build.bat` to build for both Windows and Linux:
+   ```bash
+   build.bat
+   ```
+   This creates `build/gosnap.exe` (Windows) and `build/gosnap` (Linux).
 4. (Optional) Move the binary to a directory in your `PATH` for global access:
    ```bash
    mv gosnap /usr/local/bin/
@@ -134,8 +143,18 @@ To include these artifacts in the snapshot, use `-en=false`.
    ```
    This writes the snapshot to `snapshot.txt`, including only `.py` and `.go` files.
 
-## Output Format
+## Releases
+Pre-built binaries for Windows (`gosnap-windows-amd64.exe`) and Linux (`gosnap-linux-amd64`) are available in the [Releases](https://github.com/Wingrull/gosnap/releases) section. These are automatically built using GitHub Actions whenever a new tag (e.g., `v1.0.0`) is pushed. The binaries are generated using `build.bat` for Windows and an equivalent `go build` command for Linux, producing `build/gosnap.exe` and `build/gosnap`, respectively.
 
+To create a new release:
+1. Tag the commit:
+   ```bash
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+2. GitHub Actions will build the binaries and create a release with the artifacts attached.
+
+## Output Format
 The output file (e.g., `snap.txt`) contains:
 1. **Directory Structure**: A tree-like representation of files and folders.
 2. **File Contents**: The contents of each text file, prefixed with its relative path.

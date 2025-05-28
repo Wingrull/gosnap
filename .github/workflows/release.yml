@@ -1,0 +1,50 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: gosnap.exe
+            asset_name: gosnap-windows-amd64.exe
+          - os: ubuntu-latest
+            artifact_name: gosnap
+            asset_name: gosnap-linux-amd64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.3'
+
+      - name: Create build directory
+        run: mkdir -p build
+
+      - name: Build binary
+        run: |
+          if [ "${{ matrix.os }}" == "windows-latest" ]; then
+            cmd /c build.bat
+          else
+            GOOS=linux go build -o ./build -a -gcflags=all="-l -B" -ldflags="-w -s" -trimpath -buildvcs=false
+          fi
+        shell: bash
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/${{ matrix.artifact_name }}
+          asset_name: ${{ matrix.asset_name }}
+          tag: ${{ github.ref }}
+          overwrite: true
